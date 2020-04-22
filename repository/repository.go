@@ -18,13 +18,6 @@ type IdGenerator struct {
 	Key     string
 }
 
-//type Dao struct {
-//	dbClient     *mongo.Client
-//	dbServer     string
-//	dbDatabase   string
-//	dbCollection string
-//}
-
 type IdGenDao struct {
 	dbClient     *mongo.Client
 	dbServer     string

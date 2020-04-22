@@ -6,7 +6,7 @@ import (
 	"github.com/KarthickSCode/customerService/repository"
 	"github.com/KarthickSCode/customerService/utils"
 	"github.com/erply/api-go-wrapper/pkg/api"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +17,7 @@ type CustomerController struct {
 	idGenDao    *repository.IdGenDao
 }
 
-type saveCustomerResponse struct {
+type SaveCustomerResponse struct {
 	Id            int `json:"customerID"`
 	AlreadyExists int `json:"alreadyExists"`
 }
@@ -44,18 +44,35 @@ func (uc *CustomerController) parseRequest(r *http.Request) (api.Customer, error
 	return customer, nil
 }
 
-func (controller *CustomerController) SaveCustomer(w http.ResponseWriter, r *http.Request) {
+// SaveCustomer godoc
+// @Summary Adding a new Customer
+// @Description Add customer details by json
+// @Tags customer
+// @Accept  json
+// @Produce  json
+// @Param customer body api.Customer true "Add Customer"
+// @Success 200 {object} controllers.SaveCustomerResponse
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Security ApiKeyAuth
+// @Router /customer [post]
+func (controller *CustomerController) SaveCustomer(ctx *gin.Context) {
 
 	var alreadyExists = 0
-	customer, err := controller.parseRequest(r)
 
-	if checkErrorExist(err, w) {
+	var customer api.Customer
+	err := ctx.ShouldBindJSON(&customer)
+
+	if err != nil {
+		utils.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	if customer.CustomerID == 0 {
 		nextId, err := controller.idGenDao.NextId(controller.config.IdGenerationKey.CustomerKey)
-		if checkErrorExist(err, w) {
+		if err != nil {
+			utils.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
 		customer.CustomerID = nextId
@@ -67,29 +84,40 @@ func (controller *CustomerController) SaveCustomer(w http.ResponseWriter, r *htt
 
 	var customerId = customer.CustomerID
 
-	var response = saveCustomerResponse{
+	var response = SaveCustomerResponse{
 		Id:            customerId,
 		AlreadyExists: alreadyExists,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	ctx.JSON(http.StatusOK, response)
 }
 
-func (controller *CustomerController) GetCustomer(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if checkErrorExist(err, w) {
+// GetCustomer godoc
+// @Summary Get the customer details
+// @Description get customer by ID
+// @Tags customer
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Customer ID"
+// @Success 200 {object} api.Customer
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Security ApiKeyAuth
+// @Router /customer/{id} [get]
+func (controller *CustomerController) GetCustomer(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		utils.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	obj, err := controller.customerDao.FindCustomer(id)
-	if checkErrorExist(err, w) {
+	if err != nil {
+		utils.NewError(ctx, http.StatusNotFound, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(obj)
+
+	ctx.JSON(http.StatusOK, obj)
 }
 
 func checkErrorExist(err error, w http.ResponseWriter) bool {
