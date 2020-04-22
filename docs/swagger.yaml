@@ -1,0 +1,205 @@
+basePath: /
+definitions:
+  api.Customer:
+    properties:
+      EDI:
+        type: string
+      address:
+        type: string
+      address2:
+        type: string
+      addresses:
+        type: Addresses
+      bankAccountNumber:
+        type: string
+      bankIBAN:
+        type: string
+      bankName:
+        type: string
+      bankSWIFT:
+        type: string
+      city:
+        type: string
+      code:
+        type: string
+      companyName:
+        type: string
+      contactPersons:
+        type: ContactPersons
+      country:
+        type: string
+      customerID:
+        type: integer
+      customerType:
+        type: string
+      eInvoiceEmail:
+        type: string
+      email:
+        type: string
+      fax:
+        type: string
+      firstName:
+        type: string
+      fullName:
+        type: string
+      groupID:
+        type: integer
+      id:
+        type: integer
+      lastModified:
+        type: integer
+      lastName:
+        type: string
+      notes:
+        type: string
+      paymentDays:
+        type: integer
+      phone:
+        type: string
+      postalCode:
+        type: string
+      referenceNumber:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      type_id:
+        type: string
+      vatNumber:
+        type: string
+    type: object
+  controllers.SaveCustomerResponse:
+    properties:
+      alreadyExists:
+        type: integer
+      customerID:
+        type: integer
+    type: object
+  utils.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: karthicksivapragasam23@gmail.com
+    name: Karthick Sivapragasam
+    url: https://github.com/KarthickSCode/customerService
+  description: ERPLY Customer API management.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: ERPLY Customer API
+  version: "1.0"
+paths:
+  /customer:
+    post:
+      consumes:
+      - application/json
+      description: add by json customer
+      parameters:
+      - description: Add Customer
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/api.Customer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SaveCustomerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a Customer
+      tags:
+      - customer
+  /customer/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get customer by ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Customer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the customer details
+      tags:
+      - customer
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  BasicAuth:
+    type: basic
+  OAuth2AccessCode:
+    authorizationUrl: https://example.com/oauth/authorize
+    flow: accessCode
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+  OAuth2Application:
+    flow: application
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+      write: ' Grants write access'
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+  OAuth2Implicit:
+    authorizationUrl: https://example.com/oauth/authorize
+    flow: implicit
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+      write: ' Grants write access'
+    type: oauth2
+  OAuth2Password:
+    flow: password
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+      read: ' Grants read access'
+      write: ' Grants write access'
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+swagger: "2.0"
